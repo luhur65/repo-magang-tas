@@ -12,7 +12,7 @@ $sord = isset($_REQUEST['sord']) ? $_REQUEST['sord'] : 'DESC';
 $globalSearch = isset($_REQUEST['global_search']) ? $_REQUEST['global_search'] : '';
 
 $queryPenjualan = "SELECT id_penjualan, no_bukti, DATE_FORMAT(tgl_bukti, '%d-%m-%Y') as tgl_bukti, nama_pelanggan FROM penjualan.tbl_penjualan LEFT JOIN penjualan.tbl_pelanggan ON penjualan.tbl_penjualan.pelanggan_id = penjualan.tbl_pelanggan.id";
-$count = count(query($queryPenjualan));
+
 
 // fitur search AND
 $wh = '';
@@ -43,11 +43,8 @@ if ($searchOn == 'true') {
 // Global Search GLOBAL
 if ($globalSearch != '') {
   $globalCond = "(no_bukti LIKE '%$globalSearch%' OR DATE_FORMAT(tgl_bukti, '%d-%m-%Y') LIKE '%$globalSearch%' OR nama_pelanggan LIKE '%$globalSearch%')";
-  if ($wh == '') {
-    $wh = " WHERE $globalCond";
-  } else {
-    $wh .= " AND $globalCond";
-  }
+  $wh = " WHERE $globalCond";
+  
 }
 
 // hitung data
@@ -59,10 +56,6 @@ if ($count > 0) {
   $total_pages = 0;
 }
 
-if ($page > $total_pages) {
-  $page = $total_pages;
-}
-
 $start = $limit * $page - $limit;
 
 $penjualans = query("$queryPenjualan $wh ORDER BY $sidx $sord LIMIT $start, $limit");
@@ -70,6 +63,6 @@ $penjualans = query("$queryPenjualan $wh ORDER BY $sidx $sord LIMIT $start, $lim
 echo json_encode([
   "total" => $total_pages,
   "page" => $page,
-  "records" => count($penjualans),
+  "records" => $count,
   "rows" => $penjualans,
 ]);
