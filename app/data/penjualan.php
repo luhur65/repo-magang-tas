@@ -2,16 +2,11 @@
 
 require_once '../penjualan_config.php';
 
-function JSONData($conn) {
+function getTotalPenjualan($conn) {
 
-  $id = mysqli_insert_id($conn);
   $queryCount = mysqli_query($conn, "SELECT COUNT(*) as count FROM penjualan.tbl_penjualan");
   $row = mysqli_fetch_assoc($queryCount);
-  $count = $row['count'];
-  return json_encode([
-    "id" => $id,
-    "count" => $count
-  ]);
+  return $row['count'];
 
 }
 
@@ -37,9 +32,8 @@ function tambah_penjualan($conn) {
   $result->bind_param("ssi", $no_bukti, $tgl_bukti, $pelanggan);
 
   if ($result->execute()) {
-    $result->close();
-
     $lastPenjualanID = $conn->insert_id; // id terakhir yang dimasukkan
+    $result->close();
 
     $penjualanBarang = $conn->prepare("INSERT INTO `penjualan`.`penjualan_detail` (`penjualan_id`, `nama_barang`, `qty`, `harga`) VALUES (?, UPPER(?), ?, ?)");
 
@@ -59,7 +53,10 @@ function tambah_penjualan($conn) {
     }
 
     $penjualanBarang->close();
-    echo JSONData($conn);
+    echo json_encode([
+      "id" => $lastPenjualanID,
+      "count" => getTotalPenjualan($conn),
+    ]);
 
   } else {
     http_response_code(500);
