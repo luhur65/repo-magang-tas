@@ -277,14 +277,7 @@ function detailTable(id) {
         let num = typeof val === 'number' ? val : parseFloat(val);
         if (!isNaN(num)) totalBarang += num;
       });
-
-      // let sumTotal = $("#detailItem").jqGrid('getCol', 'total', false, 'sum');
-      // const sumBarang = $("#detailItem").jqGrid('getCol', 'qty', false, 'sum');
-
-      // Jika ingin format rupiah di footer:
-      // let sumRupiah = 'Rp ' + totalHarga.toLocaleString('id-ID', { minimumFractionDigits: 0 });
-      // console.log(sumRupiah);
-
+      
       $("#detailItem").jqGrid('footerData', 'set', { nama_barang: 'Total:', total: totalHarga, qty: totalBarang });
     }
   }).navGrid('#detailItemPager', { add: false, edit: false, del: false, search: false, refresh: false });
@@ -301,8 +294,8 @@ function highlightText(cell, keyword) {
 
 function higligthPencarian(grid) {
   const postData = grid.getGridParam("postData");
-  const filtersJSON = postData.filters; console.log(filtersJSON);
-  const globalSearch = postData.global_search; console.log(globalSearch);
+  const filtersJSON = postData.filters;
+  const globalSearch = postData.global_search;
   const gridId = $(grid).getGridParam().id;
 
   // Bersihkan highlight lama
