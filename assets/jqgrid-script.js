@@ -1,12 +1,10 @@
 function tambahBarang() {
-
   $('#dialogElem').load('./app/views/penjualan/form-penjualan.php').dialog({
-    modal: true, 
+    modal: true,
     height: 500,
     width: 1100,
     position: { my: "center center", at: "center", of: window },
     title: 'Tambah Data',
-
     buttons: {
       'Simpan Data': function () {
         let sortname = $('#jqGrid').jqGrid('getGridParam', 'sortname');
@@ -24,7 +22,6 @@ function tambahBarang() {
             text: 'Ada data kosong!',
             icon: 'error',
           });
-
           return false;
         }
 
@@ -40,18 +37,26 @@ function tambahBarang() {
           dataType: 'JSON',
           data: $('#data-form').serialize(),
           success: function (data) {
-
-            // notif saya
             Swal.fire({
               title: 'Berhasil!',
               text: 'Berhasil Ditambahkan',
               icon: 'success',
             });
 
-            selectId = data['id'];
+            // Hitung halaman tujuan
+            let id = data['id'];
+            let countRow = parseInt(data['count']);
+            let rowNum = parseInt($('#jqGrid').jqGrid('getGridParam', 'rowNum'));
+            let page = Math.ceil(countRow / rowNum);
+
+            // Simpan ke global
+            window.selectId = id.toString();
+            window.selectPage = page;
 
             $('#dialogElem').dialog('close');
 
+            // Reload grid ke halaman yang benar
+            $('#jqGrid').trigger('reloadGrid', [{ page: page }]);
           },
           error: function () {
             Swal.fire({
@@ -61,16 +66,12 @@ function tambahBarang() {
             });
           }
         });
-
       },
       'Cancel': function () {
         $('#dialogElem').dialog('close');
       }
     }
-
   });
-
-
 }
 
 
@@ -260,7 +261,7 @@ function detailTable(id) {
         let num = typeof val === 'number' ? val : parseFloat(val);
         if (!isNaN(num)) totalBarang += num;
       });
-      
+
       $("#detailItem").jqGrid('footerData', 'set', { nama_barang: 'Total:', total: totalHarga, qty: totalBarang });
     }
   }).navGrid('#detailItemPager', { add: false, edit: false, del: false, search: false, refresh: false });
@@ -385,51 +386,33 @@ $('#jqGrid').jqGrid({
 
   },
   loadComplete: function (response) {
-
-    if (selectId === null) {
-
-      const barisPertama = $("#jqGrid").jqGrid('getDataIDs')[0];
-      if (barisPertama) {
-        $("#jqGrid").jqGrid('setSelection', barisPertama);
-        detailTable(barisPertama);
-      }
-
-    } else {
-
-      const ids = $("#jqGrid").jqGrid('getDataIDs');
-      if (ids.includes(selectId)) {
-
-        $("#jqGrid").jqGrid('setSelection', selectId, true);
-        detailTable(selectId);
-        selectId = null; // reset biar nggak ke-trigger terus
-        
+    const ids = $("#jqGrid").jqGrid('getDataIDs');
+    if (window.selectId) {
+      if (ids.includes(window.selectId)) {
+        $("#jqGrid").jqGrid('setSelection', window.selectId, true);
+        detailTable(window.selectId);
+        window.selectId = null;
+        window.selectPage = null;
+      } else if (window.selectPage && $('#jqGrid').jqGrid('getGridParam', 'page') !== window.selectPage) {
+        // Pindah ke halaman yang benar jika belum
+        $('#jqGrid').jqGrid('setGridParam', { page: window.selectPage }).trigger('reloadGrid');
       } else {
-
-        // Kalau data belum muncul di halaman ini, coba pindah halaman berikutnya
-        const currentPage = $('#jqGrid').jqGrid('getGridParam', 'page');
-        const lastPage = $('#jqGrid').jqGrid('getGridParam', 'lastpage');
-
-        if (currentPage < lastPage) {
-          $('#jqGrid')
-            .jqGrid('setGridParam', { page: currentPage + 1 })
-            .trigger('reloadGrid');
-        } else {
-          // fallback kalau tetap nggak ketemu
-          const barisPertama = ids[0];
-          if (barisPertama) {
-            $("#jqGrid").jqGrid('setSelection', barisPertama);
-            detailTable(barisPertama);
-          }
-          selectId = null;
+        // fallback
+        if (ids.length > 0) {
+          $("#jqGrid").jqGrid('setSelection', ids[0]);
+          detailTable(ids[0]);
         }
+        window.selectId = null;
+        window.selectPage = null;
       }
-
+    } else {
+      if (ids.length > 0) {
+        $("#jqGrid").jqGrid('setSelection', ids[0]);
+        detailTable(ids[0]);
+      }
     }
-
-    higligthPencarian($(this)); // fungsi kamu sendiri
+    higligthPencarian($(this));
   }
-  
-
 });
 
 // setting default untuk seluruh action bawaan jqgrid
@@ -491,7 +474,7 @@ $('#jqGrid').jqGrid('filterToolbar', {
   beforeSearch: function () {
     const postData = $('#jqGrid').getGridParam("postData");
     delete postData.global_search;
-    
+
     $('#jqGrid').setGridParam({
       search: true,
       postData: {
