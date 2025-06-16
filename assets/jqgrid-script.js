@@ -43,20 +43,35 @@ function tambahBarang() {
               icon: 'success',
             });
 
-            // Hitung halaman tujuan
-            let id = data['id'];
-            let countRow = parseInt(data['count']);
-            let rowNum = parseInt($('#jqGrid').jqGrid('getGridParam', 'rowNum'));
-            let page = Math.ceil(countRow / rowNum);
+            // Simpan id ke global
+            window.selectId = data['id'].toString();
+            window.selectIndex = null; // reset
 
-            // Simpan ke global
-            window.selectId = id.toString();
-            window.selectPage = page;
-
-            $('#dialogElem').dialog('close');
-
-            // Reload grid ke halaman yang benar
-            $('#jqGrid').trigger('reloadGrid', [{ page: page }]);
+            // Dapatkan semua data di grid (termasuk yang tidak tampil di halaman sekarang)
+            $.ajax({
+              url: './app/data/testing.php',
+              method: 'POST',
+              dataType: 'json',
+              data: { _search: false },
+              success: function (allData) {
+                if (allData.rows && Array.isArray(allData.rows)) {
+                  // Cari index dari id yang baru
+                  let idx = allData.rows.findIndex(row => row.id_penjualan == window.selectId);
+                  if (idx !== -1) {
+                    let rowNum = parseInt($('#jqGrid').jqGrid('getGridParam', 'rowNum'));
+                    let page = Math.floor(idx / rowNum) + 1;
+                    window.selectIndex = idx;
+                    window.selectPage = page;
+                    $('#dialogElem').dialog('close');
+                    $('#jqGrid').trigger('reloadGrid', [{ page: page }]);
+                    return;
+                  }
+                }
+                // fallback jika tidak ketemu
+                $('#dialogElem').dialog('close');
+                $('#jqGrid').trigger('reloadGrid');
+              }
+            });
           },
           error: function () {
             Swal.fire({
@@ -387,29 +402,22 @@ $('#jqGrid').jqGrid({
   },
   loadComplete: function (response) {
     const ids = $("#jqGrid").jqGrid('getDataIDs');
-    if (window.selectId) {
-      if (ids.includes(window.selectId)) {
-        $("#jqGrid").jqGrid('setSelection', window.selectId, true);
-        detailTable(window.selectId);
-        window.selectId = null;
-        window.selectPage = null;
-      } else if (window.selectPage && $('#jqGrid').jqGrid('getGridParam', 'page') !== window.selectPage) {
-        // Pindah ke halaman yang benar jika belum
-        $('#jqGrid').jqGrid('setGridParam', { page: window.selectPage }).trigger('reloadGrid');
-      } else {
-        // fallback
-        if (ids.length > 0) {
-          $("#jqGrid").jqGrid('setSelection', ids[0]);
-          detailTable(ids[0]);
-        }
-        window.selectId = null;
-        window.selectPage = null;
-      }
+    if (window.selectId && ids.includes(window.selectId)) {
+      $("#jqGrid").jqGrid('setSelection', window.selectId, true);
+      detailTable(window.selectId);
+      window.selectId = null;
+      window.selectPage = null;
+      window.selectIndex = null;
+    } else if (window.selectPage && $('#jqGrid').jqGrid('getGridParam', 'page') !== window.selectPage) {
+      $('#jqGrid').jqGrid('setGridParam', { page: window.selectPage }).trigger('reloadGrid');
     } else {
       if (ids.length > 0) {
         $("#jqGrid").jqGrid('setSelection', ids[0]);
         detailTable(ids[0]);
       }
+      window.selectId = null;
+      window.selectPage = null;
+      window.selectIndex = null;
     }
     higligthPencarian($(this));
   }
