@@ -48,14 +48,9 @@ function tambahBarang() {
               icon: 'success',
             });
 
-            let id = data['id'];
-            let countRow = data['count'];
-            let page = Math.ceil(countRow / rowNum);
+            selectId = data['id'];
 
             $('#dialogElem').dialog('close');
-
-            // Ganti ke halaman yang tepat
-            $('#jqGrid').jqGrid('setGridParam', { page: page }).trigger('reloadGrid');
 
           },
           error: function () {
@@ -390,22 +385,50 @@ $('#jqGrid').jqGrid({
 
   },
   loadComplete: function (response) {
-    // $("tr.ui-search-toolbar input[name='tgl_bukti']").attr("placeholder", "Cari tgl: 04-06-2025");
 
-    if (selectId == null) {
+    if (selectId === null) {
+
       const barisPertama = $("#jqGrid").jqGrid('getDataIDs')[0];
-      $("#jqGrid").jqGrid('setSelection', barisPertama);
-      detailTable(barisPertama);
-      
+      if (barisPertama) {
+        $("#jqGrid").jqGrid('setSelection', barisPertama);
+        detailTable(barisPertama);
+      }
+
     } else {
-      $("#jqGrid").jqGrid('setSelection', selectId);
-      detailTable(selectId);
+
+      const ids = $("#jqGrid").jqGrid('getDataIDs');
+      if (ids.includes(selectId)) {
+
+        $("#jqGrid").jqGrid('setSelection', selectId, true);
+        detailTable(selectId);
+        selectId = null; // reset biar nggak ke-trigger terus
+        
+      } else {
+
+        // Kalau data belum muncul di halaman ini, coba pindah halaman berikutnya
+        const currentPage = $('#jqGrid').jqGrid('getGridParam', 'page');
+        const lastPage = $('#jqGrid').jqGrid('getGridParam', 'lastpage');
+
+        if (currentPage < lastPage) {
+          $('#jqGrid')
+            .jqGrid('setGridParam', { page: currentPage + 1 })
+            .trigger('reloadGrid');
+        } else {
+          // fallback kalau tetap nggak ketemu
+          const barisPertama = ids[0];
+          if (barisPertama) {
+            $("#jqGrid").jqGrid('setSelection', barisPertama);
+            detailTable(barisPertama);
+          }
+          selectId = null;
+        }
+      }
 
     }
 
-    higligthPencarian($(this));
-
-  },
+    higligthPencarian($(this)); // fungsi kamu sendiri
+  }
+  
 
 });
 
