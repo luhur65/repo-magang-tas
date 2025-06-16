@@ -1,6 +1,6 @@
 <h1 class="text-4xl font-bold text-blue-500">Testing Load Data JQGrid</h1>
 <h2 class="text-2xl font-bold text-slate-600">Master Detail</h2>
-<br>
+<br> 
 
 <!-- tabel penjualan -->
 <table id="jqGrid"></table>

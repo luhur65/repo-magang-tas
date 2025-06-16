@@ -1,7 +1,7 @@
 function tambahBarang() {
 
   $('#dialogElem').load('./app/views/penjualan/form-penjualan.php').dialog({
-    modal: true,
+    modal: true, 
     height: 500,
     width: 1100,
     position: { my: "center center", at: "center", of: window },
@@ -401,19 +401,18 @@ $('#jqGrid').jqGrid({
     jQuery("#detailItem").trigger('reloadGrid');
 
   },
-  loadComplete: function () {
+  loadComplete: function (response) {
     // $("tr.ui-search-toolbar input[name='tgl_bukti']").attr("placeholder", "Cari tgl: 04-06-2025");
 
-    const ids = $("#jqGrid").jqGrid('getDataIDs');
-    if (ids.length > 0) {
-
-      $("#jqGrid").jqGrid('setSelection', ids[0]);
-      selectId = ids[0];
-
+    if (selectId == null) {
+      const barisPertama = $("#jqGrid").jqGrid('getDataIDs')[0];
+      $("#jqGrid").jqGrid('setSelection', select``);
+      detailTable(selectId);
+      
+    } else {
+      $("#jqGrid").jqGrid('setSelection', selectId);
       detailTable(selectId);
 
-    } else {
-      $("#detailItem").jqGrid('clearGridData');
     }
 
     higligthPencarian($(this));
