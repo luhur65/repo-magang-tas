@@ -11,7 +11,7 @@ function tambahBarang() {
       'Simpan Data': function () {
         let sortname = $('#jqGrid').jqGrid('getGridParam', 'sortname');
         let sortorder = $('#jqGrid').jqGrid('getGridParam', 'sortorder');
-        // let rowNum = parseInt($('#jqGrid').jqGrid('getGridParam', 'rowNum'));
+        let rowNum = parseInt($('#jqGrid').jqGrid('getGridParam', 'rowNum'));
 
         const noBukti = $("form [name=no_bukti").val();
         const tglBukti = $("form [name=tgl_bukti").val();
@@ -48,26 +48,14 @@ function tambahBarang() {
               icon: 'success',
             });
 
-            // let id = data['id'];
-            // let countRow = data['count'];
-            // let page = Math.ceil(countRow / rowNum);
-            // let gridPage = $('#jqGrid').getGridParam('page');
-
-            // selectId = id;
+            let id = data['id'];
+            let countRow = data['count'];
+            let page = Math.ceil(countRow / rowNum);
 
             $('#dialogElem').dialog('close');
-            $('#jqGrid').trigger('reloadGrid');
 
-            // if (page >= gridPage) {
-            // }
-
-            // setTimeout(() => {
-            //   $('#jqGrid').trigger('reloadGrid', {
-            //     page: page,
-            //     id: id,
-            //     position: id,
-            //   });
-            // }, 100);
+            // Ganti ke halaman yang tepat
+            $('#jqGrid').jqGrid('setGridParam', { page: page }).trigger('reloadGrid');
 
           },
           error: function () {
