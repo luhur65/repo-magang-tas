@@ -113,7 +113,10 @@ function ubah_penjualan($conn, $id) {
     }
 
     $statement2->close();
-    echo JSONData($conn);
+    echo json_encode([
+      "id" => $id,
+      "count" => getTotalPenjualan($conn),
+    ]);
 
   } else {
     http_response_code(500);
@@ -137,7 +140,10 @@ function hapus_penjualan($conn, $id) {
     $hapusSemuaDataBarang->execute();
     $hapusSemuaDataBarang->close();
 
-    echo JSONData($conn);
+    echo json_encode([
+      "id" => $id,
+      "count" => getTotalPenjualan($conn),
+    ]);
     
   } else {
     http_response_code(500);

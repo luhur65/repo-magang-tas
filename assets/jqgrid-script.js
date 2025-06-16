@@ -407,7 +407,7 @@ $('#jqGrid').jqGrid({
     if (selectId == null) {
       const barisPertama = $("#jqGrid").jqGrid('getDataIDs')[0];
       $("#jqGrid").jqGrid('setSelection', select``);
-      detailTable(selectId);
+      detailTable(barisPertama);
       
     } else {
       $("#jqGrid").jqGrid('setSelection', selectId);
