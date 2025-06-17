@@ -9,7 +9,7 @@ function tambahBarang() {
       'Simpan Data': function () {
         let sortname = $('#jqGrid').jqGrid('getGridParam', 'sortname');
         let sortorder = $('#jqGrid').jqGrid('getGridParam', 'sortorder');
-        // let rowNum = parseInt($('#jqGrid').jqGrid('getGridParam', 'rowNum'));
+        let rowNum = parseInt($('#jqGrid').jqGrid('getGridParam', 'rowNum'));
 
         const noBukti = $("form [name=no_bukti").val();
         const tglBukti = $("form [name=tgl_bukti").val();
@@ -32,7 +32,7 @@ function tambahBarang() {
         });
 
         $.ajax({
-          url: './app/data/penjualan.php?sortname=' + sortname + '&sortorder=' + sortorder,
+          url: './app/data/penjualan.php?sortname=' + sortname + '&sortorder=' + sortorder + '&rows=' + rowNum,
           method: 'POST',
           dataType: 'JSON',
           data: $('#data-form').serialize(),
@@ -98,6 +98,7 @@ function UbahBarang(id) {
       'Ubah Data': function () {
         let sortname = $('#jqGrid').jqGrid('getGridParam', 'sortname');
         let sortorder = $('#jqGrid').jqGrid('getGridParam', 'sortorder');
+        let rowNum = parseInt($('#jqGrid').jqGrid('getGridParam', 'rowNum'));
 
         // Unformat AutoNumeric sebelum serialize
         $('#data-form .harga, #data-form .qty').each(function () {
@@ -106,13 +107,25 @@ function UbahBarang(id) {
         });
 
         $.ajax({
-          url: './app/data/penjualan.php?id=' + id + '&sortname=' + sortname + '&sortorder=' + sortorder + '&action=ubah',
+          url: './app/data/penjualan.php?id=' + id + '&sortname=' + sortname + '&sortorder=' + sortorder + '&rows=' + rowNum + '&action=ubah' ,
           method: 'POST',
           dataType: 'JSON',
           data: $('#data-form').serialize(),
           success: function (data) {
-            $('#dialogElem').dialog('close')
-            $('#jqGrid').trigger('reloadGrid')
+
+            // Simpan id ke global
+            selectId = data.id;
+            page = data.page;
+
+            console.log("ID yang disimpan:", selectId);
+            console.log("Page tujuan:", page);
+
+            $('#dialogElem').dialog('close');
+            $('#jqGrid').trigger('reloadGrid');
+
+            setTimeout(function () {
+              $('#jqGrid').trigger('reloadGrid', [{ page: page }]);
+            }, 100);
 
             // notif saya
             Swal.fire({
@@ -162,15 +175,28 @@ function HapusBarang(id) {
       'Delete': function () {
         let sortname = $('#jqGrid').jqGrid('getGridParam', 'sortname');
         let sortorder = $('#jqGrid').jqGrid('getGridParam', 'sortorder');
+        let rowNum = parseInt($('#jqGrid').jqGrid('getGridParam', 'rowNum'));
 
         $.ajax({
-          url: './app/data/penjualan.php?id=' + id + '&sortname=' + sortname + '&sortorder=' + sortorder + '&action=hapus',
+          url: './app/data/penjualan.php?id=' + id + '&sortname=' + sortname + '&sortorder=' + sortorder + '&rows=' + rowNum + '&action=hapus',
           method: 'POST',
           dataType: 'JSON',
           data: $('#data-form').serialize(),
           success: function (data) {
-            $('#dialogElem').dialog('close')
-            $('#jqGrid').trigger('reloadGrid')
+            
+            // Simpan id ke global
+            selectId = data.id;
+            page = data.page;
+
+            console.log("ID yang disimpan:", selectId);
+            console.log("Page tujuan:", page);
+
+            $('#dialogElem').dialog('close');
+            $('#jqGrid').trigger('reloadGrid');
+
+            setTimeout(function () {
+              $('#jqGrid').trigger('reloadGrid', [{ page: page }]);
+            }, 100);
 
             // notif saya
             Swal.fire({

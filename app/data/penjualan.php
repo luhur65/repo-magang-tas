@@ -2,6 +2,34 @@
 
 require_once '../penjualan_config.php';
 
+function jsonPenjualanResponse($conn, $id)
+{
+  // Ambil seluruh id_penjualan terurut sesuai grid
+  $sidx = isset($_REQUEST['sortname']) ? $_REQUEST['sortname'] : 'penjualan.tbl_penjualan.id_penjualan';
+  $sord = isset($_REQUEST['sortorder']) ? $_REQUEST['sortorder'] : 'DESC';
+  $query = "SELECT id_penjualan FROM penjualan.tbl_penjualan ORDER BY $sidx $sord";
+  $result = mysqli_query($conn, $query);
+
+  $ids = [];
+  while ($row = mysqli_fetch_assoc($result)) {
+    $ids[] = $row['id_penjualan'];
+  }
+
+  // Cari posisi id
+  $rowIndex = array_search($id, $ids);
+  $rowNumber = $rowIndex !== false ? $rowIndex + 1 : 1;
+  $limit = isset($_REQUEST['rows']) ? intval($_REQUEST['rows']) : 10;
+  $page = ceil($rowNumber / $limit);
+
+  return [
+    "status" => "submitted",
+    "id" => $id,
+    "page" => $page,
+    "row" => $rowNumber,
+    "count" => getTotalPenjualan($conn)
+  ];
+}
+
 function getTotalPenjualan($conn) {
 
   $queryCount = mysqli_query($conn, "SELECT COUNT(*) as count FROM penjualan.tbl_penjualan");
@@ -55,31 +83,7 @@ function tambah_penjualan($conn) {
     }
 
     $penjualanBarang->close();
-
-    // Ambil seluruh id_penjualan terurut sesuai grid
-    $sidx = isset($_REQUEST['sortname']) ? $_REQUEST['sortname'] : 'penjualan.tbl_penjualan.id_penjualan';
-    $sord = isset($_REQUEST['sortorder']) ? $_REQUEST['sortorder'] : 'DESC';
-    $query = "SELECT id_penjualan FROM penjualan.tbl_penjualan ORDER BY $sidx $sord";
-    $result = mysqli_query($conn, $query);
-
-    $ids = [];
-    while ($row = mysqli_fetch_assoc($result)) {
-      $ids[] = $row['id_penjualan'];
-    }
-
-    // Cari posisi id yang baru di-insert
-    $rowIndex = array_search($lastPenjualanID, $ids);
-    $rowNumber = $rowIndex !== false ? $rowIndex + 1 : 1; // posisi (mulai dari 1)
-    $limit = isset($_REQUEST['rows']) ? intval($_REQUEST['rows']) : 10;
-    $page = ceil($rowNumber / $limit);
-
-    echo json_encode([
-      "status" => "submitted",
-      "id" => $lastPenjualanID,
-      "page" => $page,
-      "row" => $rowNumber,
-      "count" => getTotalPenjualan($conn)
-    ]);
+    echo json_encode(jsonPenjualanResponse($conn, $lastPenjualanID));
 
   } else {
     http_response_code(500);
@@ -126,7 +130,6 @@ function ubah_penjualan($conn, $id) {
       // var_dump($qtys[$i]);
       // return false;
 
-
       // $namabarang = strtoupper($namabarangs[$i]);
 
       $statement2->bind_param("isdd", $id, $namabarangs[$i], $qtys[$i], $hargas[$i]);
@@ -136,10 +139,7 @@ function ubah_penjualan($conn, $id) {
     }
 
     $statement2->close();
-    echo json_encode([
-      "id" => $id,
-      "count" => getTotalPenjualan($conn),
-    ]);
+    echo json_encode(jsonPenjualanResponse($conn, $id));
 
   } else {
     http_response_code(500);
@@ -163,10 +163,12 @@ function hapus_penjualan($conn, $id) {
     $hapusSemuaDataBarang->execute();
     $hapusSemuaDataBarang->close();
 
-    echo json_encode([
-      "id" => $id,
-      "count" => getTotalPenjualan($conn),
-    ]);
+    // Cari id_penjualan terdekat (misal, id sebelumnya)
+    $query = "SELECT id_penjualan FROM penjualan.tbl_penjualan ORDER BY id_penjualan DESC LIMIT 1";
+    $result = mysqli_query($conn, $query);
+    $row = mysqli_fetch_assoc($result);
+    $idTerdekat = $row ? $row['id_penjualan'] : null;
+    echo json_encode(jsonPenjualanResponse($conn, $idTerdekat));
     
   } else {
     http_response_code(500);
