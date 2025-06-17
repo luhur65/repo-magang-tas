@@ -121,7 +121,7 @@ function UbahBarang(id) {
             console.log("Page tujuan:", page);
 
             $('#dialogElem').dialog('close');
-             $('#jqGrid').setGridParam({
+            $('#jqGrid').setGridParam({
               page: page
             }).trigger('reloadGrid');
 
@@ -190,11 +190,7 @@ function HapusBarang(id) {
             console.log("Page tujuan:", page);
 
             $('#dialogElem').dialog('close');
-            $('#jqGrid').trigger('reloadGrid');
-
-            setTimeout(function () {
-              $('#jqGrid').trigger('reloadGrid', [{ page: page }]);
-            }, 100);
+            $('#jqGrid').trigger('reloadGrid', [{page: page}]);
 
             // notif saya
             Swal.fire({
@@ -204,11 +200,11 @@ function HapusBarang(id) {
             });
           },
           error: function () {
-            Swal.fire({
-              title: 'Error!',
-              text: 'Gagal Dihapus',
-              icon: 'error',
-            });
+            // Swal.fire({
+            //   title: 'Error!',
+            //   text: 'Gagal Dihapus',
+            //   icon: 'error',
+            // });
           }
         });
       },
