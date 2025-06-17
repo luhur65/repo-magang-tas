@@ -7,7 +7,7 @@ function jsonPenjualanResponse($conn, $id)
   // Ambil seluruh id_penjualan terurut sesuai grid
   $sidx = isset($_REQUEST['sortname']) ? $_REQUEST['sortname'] : 'penjualan.tbl_penjualan.id_penjualan';
   $sord = isset($_REQUEST['sortorder']) ? $_REQUEST['sortorder'] : 'DESC';
-  $query = "SELECT id_penjualan FROM penjualan.tbl_penjualan ORDER BY $sidx $sord";
+  $query = "SELECT id_penjualan FROM penjualan.tbl_penjualan LEFT JOIN penjualan.tbl_pelanggan ON penjualan.tbl_penjualan.pelanggan_id = penjualan.tbl_pelanggan.id ORDER BY $sidx $sord";
   $result = mysqli_query($conn, $query);
 
   $ids = [];
@@ -15,8 +15,11 @@ function jsonPenjualanResponse($conn, $id)
     $ids[] = $row['id_penjualan'];
   }
 
+  // var_dump($ids);
+
   // Cari posisi id
   $rowIndex = array_search($id, $ids);
+  // var_dump($rowIndex);
   $rowNumber = $rowIndex !== false ? $rowIndex + 1 : 1;
   $limit = isset($_REQUEST['rows']) ? intval($_REQUEST['rows']) : 10;
   $page = ceil($rowNumber / $limit);

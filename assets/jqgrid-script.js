@@ -51,11 +51,11 @@ function tambahBarang() {
             console.log("Page tujuan:", page);
 
             $('#dialogElem').dialog('close');
-            $('#jqGrid').trigger('reloadGrid');
-            
-            setTimeout(function () {
-              $('#jqGrid').trigger('reloadGrid', [{ page: page }]);
-            }, 100);
+            $('#jqGrid').setGridParam({
+              page: page
+            }).trigger('reloadGrid');
+
+
             
           },
           error: function () {
@@ -121,7 +121,9 @@ function UbahBarang(id) {
             console.log("Page tujuan:", page);
 
             $('#dialogElem').dialog('close');
-            $('#jqGrid').trigger('reloadGrid');
+             $('#jqGrid').setGridParam({
+              page: page
+            }).trigger('reloadGrid');
 
             // notif saya
             Swal.fire({
