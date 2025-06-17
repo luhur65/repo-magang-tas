@@ -123,10 +123,6 @@ function UbahBarang(id) {
             $('#dialogElem').dialog('close');
             $('#jqGrid').trigger('reloadGrid');
 
-            setTimeout(function () {
-              $('#jqGrid').trigger('reloadGrid', [{ page: page }]);
-            }, 100);
-
             // notif saya
             Swal.fire({
               title: 'Berhasil!',
@@ -491,6 +487,7 @@ $('#jqGrid').jqGrid('filterToolbar', {
 
     $('#jqGrid').setGridParam({
       search: true,
+      page: 1,
       postData: {
         _search: true,
       }
@@ -558,6 +555,7 @@ $('#gsearch').on('keyup', function () {
   //maka setelah itu, isi param postData bisa bertambah sesuai yg diinginkan
   $('#jqGrid').jqGrid('setGridParam', {
     search: false,
+    page: 1,
     postData: {
       filters: {},
       _search: false,

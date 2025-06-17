@@ -22,10 +22,8 @@ function jsonPenjualanResponse($conn, $id)
   $page = ceil($rowNumber / $limit);
 
   return [
-    "status" => "submitted",
     "id" => $id,
     "page" => $page,
-    "row" => $rowNumber,
     "count" => getTotalPenjualan($conn)
   ];
 }
@@ -163,8 +161,10 @@ function hapus_penjualan($conn, $id) {
     $hapusSemuaDataBarang->execute();
     $hapusSemuaDataBarang->close();
 
-    // Cari id_penjualan terdekat (misal, id sebelumnya)
-    $query = "SELECT id_penjualan FROM penjualan.tbl_penjualan ORDER BY id_penjualan DESC LIMIT 1";
+    // Cari yang terdekat data nya
+    $sidx = isset($_REQUEST['sortname']) ? $_REQUEST['sortname'] : 'penjualan.tbl_penjualan.id_penjualan';
+    $sord = isset($_REQUEST['sortorder']) ? $_REQUEST['sortorder'] : 'DESC';
+    $query = "SELECT id_penjualan FROM penjualan.tbl_penjualan ORDER BY $sidx $sord LIMIT 1";
     $result = mysqli_query($conn, $query);
     $row = mysqli_fetch_assoc($result);
     $idTerdekat = $row ? $row['id_penjualan'] : null;
