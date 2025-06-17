@@ -51,7 +51,8 @@ function tambahBarang() {
             console.log("Page tujuan:", page);
 
             $('#dialogElem').dialog('close');
-
+            $('#jqGrid').trigger('reloadGrid');
+            
             setTimeout(function () {
               $('#jqGrid').trigger('reloadGrid', [{ page: page }]);
             }, 100);
@@ -391,7 +392,6 @@ $('#jqGrid').jqGrid({
     if(selectId) {
       $("#jqGrid").jqGrid('setSelection', selectId);
       detailTable(selectId);
-      selectId = null; // reset selectId setelah digunakan
 
     } else {
       $("#jqGrid").jqGrid('setSelection', ids[0]);
