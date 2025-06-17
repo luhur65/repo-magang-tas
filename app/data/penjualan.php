@@ -16,6 +16,8 @@ function reverseDate($date) {
 
 function tambah_penjualan($conn) {
 
+  var_dump($_REQUEST);
+
   // Ambil data dari POST
   $no_bukti = $_POST['no_bukti'];
   $tgl_bukti = reverseDate($_POST['tgl_bukti']); // format: dd-mm-yyyy
@@ -53,9 +55,30 @@ function tambah_penjualan($conn) {
     }
 
     $penjualanBarang->close();
+
+    // Ambil seluruh id_penjualan terurut sesuai grid
+    $sidx = isset($_REQUEST['sidx']) ? $_REQUEST['sidx'] : 'penjualan.tbl_penjualan.id_penjualan';
+    $sord = isset($_REQUEST['sord']) ? $_REQUEST['sord'] : 'DESC';
+    $query = "SELECT id_penjualan FROM penjualan.tbl_penjualan ORDER BY $sidx $sord";
+    $result = mysqli_query($conn, $query);
+
+    $ids = [];
+    while ($row = mysqli_fetch_assoc($result)) {
+      $ids[] = $row['id_penjualan'];
+    }
+
+    // Cari posisi id yang baru di-insert
+    $rowIndex = array_search($lastPenjualanID, $ids);
+    $rowNumber = $rowIndex !== false ? $rowIndex + 1 : 1; // posisi (mulai dari 1)
+    $limit = isset($_REQUEST['rows']) ? intval($_REQUEST['rows']) : 10;
+    $page = ceil($rowNumber / $limit);
+
     echo json_encode([
+      "status" => "submitted",
       "id" => $lastPenjualanID,
-      "count" => getTotalPenjualan($conn),
+      "page" => $page,
+      "row" => $rowNumber,
+      "count" => getTotalPenjualan($conn)
     ]);
 
   } else {
