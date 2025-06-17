@@ -9,7 +9,7 @@ function tambahBarang() {
       'Simpan Data': function () {
         let sortname = $('#jqGrid').jqGrid('getGridParam', 'sortname');
         let sortorder = $('#jqGrid').jqGrid('getGridParam', 'sortorder');
-        let rowNum = parseInt($('#jqGrid').jqGrid('getGridParam', 'rowNum'));
+        // let rowNum = parseInt($('#jqGrid').jqGrid('getGridParam', 'rowNum'));
 
         const noBukti = $("form [name=no_bukti").val();
         const tglBukti = $("form [name=tgl_bukti").val();
@@ -46,9 +46,16 @@ function tambahBarang() {
             // Simpan id ke global
             selectId = data.id;
             page = data.page;
+
             console.log("ID yang disimpan:", selectId);
             console.log("Page tujuan:", page);
 
+            $('#dialogElem').dialog('close');
+
+            setTimeout(function () {
+              $('#jqGrid').trigger('reloadGrid', [{ page: page }]);
+            }, 100);
+            
           },
           error: function () {
             Swal.fire({
