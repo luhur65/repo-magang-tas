@@ -16,7 +16,7 @@ function reverseDate($date) {
 
 function tambah_penjualan($conn) {
 
-  var_dump($_REQUEST);
+  // var_dump($_REQUEST);
 
   // Ambil data dari POST
   $no_bukti = $_POST['no_bukti'];
@@ -57,8 +57,8 @@ function tambah_penjualan($conn) {
     $penjualanBarang->close();
 
     // Ambil seluruh id_penjualan terurut sesuai grid
-    $sidx = isset($_REQUEST['sidx']) ? $_REQUEST['sidx'] : 'penjualan.tbl_penjualan.id_penjualan';
-    $sord = isset($_REQUEST['sord']) ? $_REQUEST['sord'] : 'DESC';
+    $sidx = isset($_REQUEST['sortname']) ? $_REQUEST['sortname'] : 'penjualan.tbl_penjualan.id_penjualan';
+    $sord = isset($_REQUEST['sortorder']) ? $_REQUEST['sortorder'] : 'DESC';
     $query = "SELECT id_penjualan FROM penjualan.tbl_penjualan ORDER BY $sidx $sord";
     $result = mysqli_query($conn, $query);
 
