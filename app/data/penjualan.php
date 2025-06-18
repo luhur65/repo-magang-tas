@@ -20,7 +20,8 @@ function jsonPenjualanResponse($conn, $id)
   // Cari posisi id
   $rowIndex = array_search($id, $ids);
   // var_dump($rowIndex);
-  $rowNumber = $rowIndex !== false ? $rowIndex + 1 : 1;
+  // $rowNumber = $rowIndex !== false ? $rowIndex + 1 : 1;
+  $rowNumber = $rowIndex + 1;
   $limit = isset($_REQUEST['rows']) ? intval($_REQUEST['rows']) : 10;
   $page = ceil($rowNumber / $limit);
 
@@ -30,6 +31,42 @@ function jsonPenjualanResponse($conn, $id)
     "count" => getTotalPenjualan($conn)
   ];
 }
+
+function getIDTerdekat($conn, $deletedId) {
+  $sidx = isset($_REQUEST['sortname']) ? $_REQUEST['sortname'] : 'penjualan.tbl_penjualan.id_penjualan';
+  $sord = isset($_REQUEST['sortorder']) ? $_REQUEST['sortorder'] : 'DESC';
+  
+  // Gunakan fungsi yang sudah ada untuk mendapatkan semua IDs
+  $query = "SELECT id_penjualan FROM penjualan.tbl_penjualan LEFT JOIN penjualan.tbl_pelanggan ON penjualan.tbl_penjualan.pelanggan_id = penjualan.tbl_pelanggan.id ORDER BY $sidx $sord";
+  $result = mysqli_query($conn, $query);
+
+  $ids = [];
+  while ($row = mysqli_fetch_assoc($result)) {
+    $ids[] = $row['id_penjualan'];
+  }
+  
+  // Cari posisi yang akan dihapus
+  $posisiTerhapus = array_search($deletedId, $ids);
+  
+  // if ($posisiTerhapus === false) {
+  //   // Jika tidak ditemukan, ambil yang pertama (exclude yang dihapus)
+  //   return !empty($ids) && $ids[0] != $deletedId ? $ids[0] : (isset($ids[1]) ? $ids[1] : null);
+  // }
+  
+  // Hapus ID dari array
+  unset($ids[$posisiTerhapus]);
+  $ids = array_values($ids); // Re-index array
+  
+  // Ambil ID pada posisi yang sama, atau sebelumnya jika tidak ada
+  if (isset($ids[$posisiTerhapus])) {
+    return $ids[$posisiTerhapus]; // Posisi yang sama
+  } else if ($posisiTerhapus > 0 && isset($ids[$posisiTerhapus - 1])) {
+    return $ids[$posisiTerhapus - 1]; // Posisi sebelumnya
+  } else {
+    return !empty($ids) ? $ids[0] : null; // Fallback ke yang pertama
+  }
+}
+
 
 function getTotalPenjualan($conn) {
 
@@ -153,6 +190,9 @@ function hapus_penjualan($conn, $id) {
 
   $id = (int) $id;
 
+  // Dapatkan ID terdekat SEBELUM menghapus data
+  $idTerdekat = getIDTerdekat($conn, $id);
+
   $statement = $conn->prepare("DELETE FROM `penjualan`.`tbl_penjualan` WHERE `id_penjualan` = ?");
   $statement->bind_param("i", $id);
 
@@ -164,18 +204,12 @@ function hapus_penjualan($conn, $id) {
     $hapusSemuaDataBarang->execute();
     $hapusSemuaDataBarang->close();
 
-    // Cari yang terdekat data nya
-    $sidx = isset($_REQUEST['sortname']) ? $_REQUEST['sortname'] : 'penjualan.tbl_penjualan.id_penjualan';
-    $sord = isset($_REQUEST['sortorder']) ? $_REQUEST['sortorder'] : 'DESC';
-    $query = "SELECT id_penjualan FROM penjualan.tbl_penjualan LEFT JOIN penjualan.tbl_pelanggan ON penjualan.tbl_penjualan.pelanggan_id = penjualan.tbl_pelanggan.id ORDER BY $sidx $sord LIMIT 1";
-    $result = mysqli_query($conn, $query);
-    $row = mysqli_fetch_assoc($result);
-    $idTerdekat = $row ? $row['id_penjualan'] : null;
+    // Gunakan ID terdekat yang sudah dihitung sebelumnya
     echo json_encode(jsonPenjualanResponse($conn, $idTerdekat));
     
   } else {
     http_response_code(500);
-    echo json_encode(["error" => "Gagal menambah data"]);
+    echo json_encode(["error" => "Gagal menghapus data"]);
   }
 
 }

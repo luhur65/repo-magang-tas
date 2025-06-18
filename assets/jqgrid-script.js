@@ -17,11 +17,12 @@ function tambahBarang() {
 
         // validasi form
         if (noBukti == "" || tglBukti == "" || pelanggan == 0) {
-          Swal.fire({
-            title: 'Error!',
-            text: 'Ada data kosong!',
-            icon: 'error',
-          });
+          alert("Data ada yang kosong");
+          // Swal.fire({
+          //   title: 'Error!',
+          //   text: 'Ada data kosong!',
+          //   icon: 'error',
+          // });
           return false;
         }
 
@@ -37,11 +38,12 @@ function tambahBarang() {
           dataType: 'JSON',
           data: $('#data-form').serialize(),
           success: function (data) {
-            Swal.fire({
-              title: 'Berhasil!',
-              text: 'Berhasil Ditambahkan',
-              icon: 'success',
-            });
+            alert("Berhasil");
+            // Swal.fire({
+            //   title: 'Berhasil!',
+            //   text: 'Berhasil Ditambahkan',
+            //   icon: 'success',
+            // });
 
             // Simpan id ke global
             selectId = data.id;
@@ -59,11 +61,12 @@ function tambahBarang() {
             
           },
           error: function () {
-            Swal.fire({
-              title: 'Error!',
-              text: 'Gagal Ditambahkan',
-              icon: 'error',
-            });
+            alert("Gagal ditambahkan");
+            // Swal.fire({
+            //   title: 'Error!',
+            //   text: 'Gagal Ditambahkan',
+            //   icon: 'error',
+            // });
           }
         });
       },
@@ -78,10 +81,11 @@ function tambahBarang() {
 function UbahBarang(id) {
 
   if (id == null) {
-    Swal.fire({
-      icon: 'question',
-      text: 'Pilih data yang mana mau di edit'
-    });
+    alert("Pilih data yang mau diedit");
+    // Swal.fire({
+    //   icon: 'question',
+    //   text: 'Pilih data yang mana mau di edit'
+    // });
 
     return false;
 
@@ -126,18 +130,20 @@ function UbahBarang(id) {
             }).trigger('reloadGrid');
 
             // notif saya
-            Swal.fire({
-              title: 'Berhasil!',
-              text: 'Berhasil Diubah',
-              icon: 'success',
-            });
+            alert("Berhasil diubah");
+            // Swal.fire({
+            //   title: 'Berhasil!',
+            //   text: 'Berhasil Diubah',
+            //   icon: 'success',
+            // });
           },
           error: function () {
-            Swal.fire({
-              title: 'Error!',
-              text: 'Gagal Diubah',
-              icon: 'error',
-            });
+            alert("Gagal diubah");
+            // Swal.fire({
+            //   title: 'Error!',
+            //   text: 'Gagal Diubah',
+            //   icon: 'error',
+            // });
           }
         });
       },
@@ -153,10 +159,11 @@ function UbahBarang(id) {
 function HapusBarang(id) {
 
   if (id == null) {
-    Swal.fire({
-      icon: 'warning',
-      text: 'Pilih data yang mana mau di hapus'
-    });
+    alert("Pilih data yang mana mau di hapus");
+    // Swal.fire({
+    //   icon: 'warning',
+    //   text: 'Pilih data yang mana mau di hapus'
+    // });
 
     return false;
 
@@ -193,13 +200,15 @@ function HapusBarang(id) {
             $('#jqGrid').trigger('reloadGrid', [{page: page}]);
 
             // notif saya
-            Swal.fire({
-              title: 'Berhasil!',
-              text: 'Berhasil Dihapus',
-              icon: 'success',
-            });
+            alert("Berhasil Dihapus");
+            // Swal.fire({
+            //   title: 'Berhasil!',
+            //   text: 'Berhasil Dihapus',
+            //   icon: 'success',
+            // });
           },
           error: function () {
+            alert("Gagal Dihapus");
             // Swal.fire({
             //   title: 'Error!',
             //   text: 'Gagal Dihapus',
