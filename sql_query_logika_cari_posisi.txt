@@ -1,0 +1,47 @@
+
+
+function getIDTerdekat($conn, $idTerhapus) {
+  $sidx = isset($_REQUEST['sortname']) ? $_REQUEST['sortname'] : 'penjualan.tbl_penjualan.id_penjualan';
+  $sord = isset($_REQUEST['sortorder']) ? $_REQUEST['sortorder'] : 'DESC';
+  
+  // Ambil semua ID sebelum penghapusan (termasuk yang akan dihapus)
+  $queryAll = "SELECT id_penjualan FROM penjualan.tbl_penjualan LEFT JOIN penjualan.tbl_pelanggan ON penjualan.tbl_penjualan.pelanggan_id = penjualan.tbl_pelanggan.id ORDER BY $sidx $sord";
+  $resultAll = mysqli_query($conn, $queryAll);
+  
+  $allIds = [];
+  while ($row = mysqli_fetch_assoc($resultAll)) {
+    $allIds[] = $row['id_penjualan'];
+  }
+  
+  // Cari posisi data yang akan dihapus
+  $posisiTerhapus = array_search($idTerhapus, $allIds);
+  
+  // Ambil semua ID setelah penghapusan (tanpa yang dihapus)
+  $queryDataTerhapus = "SELECT id_penjualan FROM penjualan.tbl_penjualan LEFT JOIN penjualan.tbl_pelanggan ON penjualan.tbl_penjualan.pelanggan_id = penjualan.tbl_pelanggan.id WHERE id_penjualan != ? ORDER BY $sidx $sord";
+  $terhapus = mysqli_prepare($conn, $queryDataTerhapus);
+  mysqli_stmt_bind_param($terhapus, "i", $idTerhapus);
+  mysqli_stmt_execute($terhapus);
+  $resultTerhapus = mysqli_stmt_get_result($terhapus);
+  
+  $idsAfterDelete = [];
+  while ($row = mysqli_fetch_assoc($resultTerhapus)) {
+    $idsAfterDelete[] = $row['id_penjualan'];
+  }
+  
+  // Jika tidak ada data sama sekali setelah penghapusan
+  if (empty($idsAfterDelete)) {
+    return null;
+  }
+  
+  // Cari ID pada posisi yang sama, jika tidak ada ambil yang sebelumnya
+  if (isset($idsAfterDelete[$posisiTerhapus])) {
+    // Ada data pada posisi yang sama (seperti KBC menggantikan KBB)
+    return $idsAfterDelete[$posisiTerhapus];
+  } else if ($posisiTerhapus > 0 && isset($idsAfterDelete[$posisiTerhapus - 1])) {
+    // Ambil data sebelumnya jika posisi yang sama tidak ada
+    return $idsAfterDelete[$posisiTerhapus - 1];
+  } else {
+    // Jika semua tidak ada, ambil data pertama
+    return $idsAfterDelete[0];
+  }
+}
