@@ -57,13 +57,19 @@ if ($formID != 'tambah') {
       <tr>
         <td style="padding-right: 20px;">No Bukti</td>
         <td style="margin: 20px;">
-          <input type="text" name="no_bukti" id="no_bukti" class="ui-widget-content ui-corner-all" autocomplete="off" data-inputmask="'mask': 'AAA99', 'greedy': 'false'" required value="<?= $formID != 'tambah' ? $p['no_bukti'] : '' ?>" <?= ($formID != "tambah") ? 'readonly' : 'autofocus'; ?>>
+          <input type="text" name="no_bukti" id="no_bukti" class="ui-widget-content ui-corner-all" autocomplete="off" data-inputmask="'mask': 'AAA99', 'greedy': 'false'" required value="<?= $formID != 'tambah' ? $p['no_bukti'] : '' ?>" <?= ($formID != "tambah") ? 'readonly' : 'autofocus'; ?>> 
+          <p class="text-xs" style="color: red;" id="no_bukti_invalid">
+            Nomor bukti tidak boleh kosong
+          </p>
         </td>
       </tr>
       <tr>
         <td style="padding-right: 20px;">Tanggal Bukti</td>
         <td>
           <input type="text" name="tgl_bukti" id="tgl_bukti" class="ui-widget-content ui-corner-all" data-inputmask="'alias': 'datetime','inputFormat': 'dd-mm-yyyy'" inputmode="numeric" required value="<?= $formID != 'tambah' ? $tgl_bukti : '' ?>" <?= ($formID == "hapus") ? 'readonly disabled' : ''; ?>>
+          <p class="text-xs" style="color: red;" id="tgl_bukti_invalid">
+            Tanggal bukti tidak boleh kosong
+          </p>
         </td>
       </tr>
       <tr>
@@ -77,6 +83,9 @@ if ($formID != 'tambah') {
                       } ?> value="<?= $pelanggan['id']; ?> "><?= $pelanggan['nama_pelanggan']; ?></option>
             <?php endforeach; ?>
           </select>
+          <p class="text-xs" style="color: red;" id="pelanggan_invalid">
+            Pelanggan tidak boleh kosong
+          </p>
         </td>
       </tr>
       <tr>
@@ -84,6 +93,7 @@ if ($formID != 'tambah') {
         <td>
           <input type="text" id="totalSemuaBarang" class="outline-none ui-widget-content ui-corner-all" readonly disabled>
         </td>
+        <p class="text-xs" style="color: red;" id="totalAllRow_invalid"></p>
       </tr>
     </tbody>
   </table>
@@ -108,7 +118,8 @@ if ($formID != 'tambah') {
             <div class="row">
               <div class="col">
                 <div class="my-1">
-                  <input type="text" class="focus:outline-hidden p-2" placeholder="Kecap Bangau" name="namabarang[]" value="<?= $barang['nama_barang']; ?>" <?= ($formID == "hapus") ? 'readonly disabled' : ''; ?>>
+                  <input type="text" class="focus:outline-hidden p-2 namabarang" name="namabarang[]" value="<?= $barang['nama_barang']; ?>" <?= ($formID == "hapus") ? 'readonly disabled' : ''; ?>>
+                  <p class="text-xs p-1 text-center error-msg-namabarang" style="color: red;"></p>
                 </div>
               </div>
             </div>
@@ -117,7 +128,8 @@ if ($formID != 'tambah') {
             <div class="row">
               <div class="col">
                 <div class="my-1">
-                  <input type="text" class="focus:outline-hidden p-2 qty text-center" placeholder="10" name="qty[]" value="<?= $barang['qty']; ?>" <?= ($formID == "hapus") ? 'readonly disabled' : ''; ?>>
+                  <input type="text" class="focus:outline-hidden p-2 qty text-center" name="qty[]" value="<?= $barang['qty']; ?>" <?= ($formID == "hapus") ? 'readonly disabled' : ''; ?>>
+                  <p class="text-xs p-1 text-center error-msg-qty" style="color: red;"></p>
                 </div>
               </div>
             </div>
@@ -126,7 +138,8 @@ if ($formID != 'tambah') {
             <div class="row">
               <div class="col">
                 <div class="my-1">
-                  <input type="text" class="focus:outline-hidden p-2 harga text-right" placeholder="Rp. 1000" name="harga[]" value="<?= $barang['harga']; ?>" <?= ($formID == "hapus") ? 'readonly disabled' : ''; ?>>
+                  <input type="text" class="focus:outline-hidden p-2 harga text-right" name="harga[]" value="<?= $barang['harga']; ?>" <?= ($formID == "hapus") ? 'readonly disabled' : ''; ?>>
+                  <p class="text-xs p-1 text-center error-msg-harga" style="color: red;"></p>
                 </div>
               </div>
             </div>
@@ -135,7 +148,8 @@ if ($formID != 'tambah') {
             <div class="row">
               <div class="col">
                 <div class="my-1">
-                  <input type="text" class="focus:outline-hidden p-2 total text-right" placeholder="Rp 10.000" readonly disabled>
+                  <input type="text" class="focus:outline-hidden p-2 total text-right" readonly disabled>
+                  <p class="text-xs p-1 text-center error-msg-totalRow" style="color: red;"></p>
                 </div>
               </div>
             </div>
@@ -160,6 +174,11 @@ if ($formID != 'tambah') {
 
 <script>
   $(document).ready(function() {
+
+    // hide invalid message
+    $('#no_bukti_invalid').hide();
+    $('#tgl_bukti_invalid').hide();
+    $('#pelanggan_invalid').hide();
 
     // Datepicker
     $('#tgl_bukti').datepicker({
@@ -198,7 +217,7 @@ if ($formID != 'tambah') {
       digitGroupSeparator: ',',
       decimalCharacter: '.',
       decimalPlaces: 2,
-      minimumValue: '0',
+      // minimumValue: '',
       // currencySymbol: 'Rp ',
       modifyValueOnWheel: false,
       currencySymbolPlacement: 'p',
@@ -210,6 +229,19 @@ if ($formID != 'tambah') {
       decimalCharacter: '.',
       decimalPlaces: 2,
       minimumValue: '0',
+    }
+
+    function deleteValidation(row) {
+      // hide invalid message
+      $('#no_bukti_invalid').hide();
+      $('#tgl_bukti_invalid').hide();
+      $('#pelanggan_invalid').hide();
+
+      console.log(row);
+
+      row.querySelectorAll('p[class^="error-msg"]').forEach(p => {
+        p.textContent = ""; // kosongkan pesan error
+      });
     }
 
     function updateTotalRow(row) {
@@ -253,6 +285,8 @@ if ($formID != 'tambah') {
           const btnHapusData = row.querySelectorAll('.btnHapusBaris');
           Array.from(btnHapusData).forEach(btn => {
             btn.addEventListener('click', function() {
+              // hide invalid message
+              deleteValidation(row);
               // Jika berhasil, hapus row dari tabel
               row.remove();
               // Update nomor urut
@@ -266,6 +300,7 @@ if ($formID != 'tambah') {
           });
         });
 
+        // hitung total
         const rows = tableBarang.querySelectorAll('tr');
         rows.forEach(row => {
           const qtyInput = row.querySelector('.qty');
@@ -283,6 +318,15 @@ if ($formID != 'tambah') {
 
         });
 
+      } else {
+
+        Array.from(tableBarang.rows).forEach((row, idx) => {
+          const btnHapusData = row.querySelector('.btnHapusBaris');
+          btnHapusData.addEventListener('click', function() {
+            deleteValidation(row);
+          }); 
+        });
+        
       }
 
       function calculateTotal() {
@@ -339,7 +383,8 @@ if ($formID != 'tambah') {
         <div class="row">
           <div class="col">
             <div class="my-1">
-              <input type="text" class="focus:outline-hidden p-2" placeholder="nama barang" name="namabarang[]">
+              <input type="text" class="focus:outline-hidden p-2 namabarang" name="namabarang[]">
+              <p class="text-xs p-1 text-center error-msg-namabarang" style="color: red;"></p>
             </div>
           </div>
         </div>
@@ -348,7 +393,8 @@ if ($formID != 'tambah') {
         <div class="row">
           <div class="col">
             <div class="my-1">
-              <input type="text" class="focus:outline-hidden p-2 qty text-center" placeholder="10" name="qty[]">
+              <input type="text" class="focus:outline-hidden p-2 qty text-center" name="qty[]">
+              <p class="text-xs p-1 text-center error-msg-qty" style="color: red;"></p>
             </div>
           </div>
         </div>
@@ -357,7 +403,8 @@ if ($formID != 'tambah') {
         <div class="row">
           <div class="col">
             <div class="my-1">
-              <input type="text" class="focus:outline-hidden p-2 harga text-right" placeholder="Rp 1.000" name="harga[]">
+              <input type="text" class="focus:outline-hidden p-2 harga text-right" name="harga[]">
+              <p class="text-xs p-1 text-center error-msg-harga" style="color: red;"></p>
             </div>
           </div>
         </div>
@@ -366,7 +413,8 @@ if ($formID != 'tambah') {
         <div class="row">
           <div class="col">
             <div class="my-1">
-              <input type="text" class="focus:outline-hidden p-2 total text-right" placeholder="Rp 10.000" readonly>
+              <input type="text" class="focus:outline-hidden p-2 total text-right" readonly>
+              <p class="text-xs p-1 text-center error-msg-totalRow" style="color: red;"></p>
             </div>
           </div>
         </div>
@@ -396,12 +444,17 @@ if ($formID != 'tambah') {
           // cari tombol btn hapus row, lalu hapus row berdasarkan row yang dihapus
           const btnHapusBaris = newRow.querySelector('.btnHapusBaris');
           btnHapusBaris.addEventListener('click', function() {
+
             newRow.remove();
+
             Array.from(tableBarang.rows).forEach((row, idx) => {
               const th = row.querySelector('th');
               if (th) th.textContent = idx + 1;
+              // hide invalid message
+              deleteValidation(row);
             });
             updateGrandTotal();
+
           });
 
           // console.log(tableBarang.rows);

@@ -33,26 +33,82 @@ function tambahBarang() {
         let sortorder = $('#jqGrid').jqGrid('getGridParam', 'sortorder');
         let rowNum = parseInt($('#jqGrid').jqGrid('getGridParam', 'rowNum'));
 
-        const noBukti = $("form [name=no_bukti").val();
-        const tglBukti = $("form [name=tgl_bukti").val();
+        const noBukti = $("form [name=no_bukti]").val();
+        const tglBukti = $("form [name=tgl_bukti]").val();
         const pelanggan = $("form [name=pelanggan]").val();
 
-        // validasi form
-        if (noBukti == "" || tglBukti == "" || pelanggan == 0) {
-          alert("Data ada yang kosong");
-          // Swal.fire({
-          //   title: 'Error!',
-          //   text: 'Ada data kosong!',
-          //   icon: 'error',
-          // });
-          return false;
+        const namaBarangs = $("form#data-form .namabarang");
+        const qtys = $("form#data-form .qty");
+        const hargas = $("form#data-form .harga");
+        const totals = $("")
+
+        let isValid = true;
+
+        // validasi form - penjualan
+        if (noBukti == "") {
+          isValid = false;
+          $('#no_bukti_invalid').show();
+          // return false; // ubah kode
+        } else {
+          $('#no_bukti_invalid').hide();
         }
+
+        if (tglBukti == "") {
+          isValid = false;
+          $('#tgl_bukti_invalid').show();
+        } else {
+          $('#tgl_bukti_invalid').hide();
+        }
+
+        if (pelanggan == 0) {
+          isValid = false;
+          $('#pelanggan_invalid').show();
+        } else {
+          $('#tgl_bukti_invalid').hide();
+        }
+
+        // validasi form - detail penjualan
+        namaBarangs.each(function(i, input) {
+          const errorP = input.parentElement.querySelector('.error-msg-namabarang');
+          if (input.value.trim() === '') {
+            errorP.textContent = 'Nama barang harus diisi!';
+            isValid = false;
+          } else {
+            errorP.textContent = '';
+          }
+        });
+
+        qtys.each(function(i, input) {
+          const errorP = input.parentElement.querySelector('.error-msg-qty');
+          if (input.value.trim() === '' || isNaN(input.value) || input.value == 0) {
+            errorP.textContent = 'Qty barang kosong!';
+            isValid = false;
+          } else {
+            errorP.textContent = '';
+          }
+        });
+
+        hargas.each(function(i, input) {
+          const errorP = input.parentElement.querySelector('.error-msg-harga');
+          if (input.value.trim() === '' || isNaN(input.value) || input.value == 0) {
+            errorP.textContent = 'Harga barang kosong!';
+            isValid = false;
+          } else {
+            errorP.textContent = '';
+          }
+        });
+        
 
         // Unformat AutoNumeric sebelum serialize
         $('#data-form .harga, #data-form .qty').each(function () {
           const an = AutoNumeric.getAutoNumericElement(this);
           if (an) this.value = an.getNumber();
         });
+
+        if (!isValid) {
+          return; // Stop jangan lanjut ke AJAX
+        }
+
 
         $.ajax({
           url: './app/data/penjualan.php?sortname=' + sortname + '&sortorder=' + sortorder + '&rows=' + rowNum,
@@ -78,13 +134,11 @@ function tambahBarang() {
             $('#jqGrid').setGridParam({
               page: page
             }).trigger('reloadGrid');
-
-
             
           },
           error: function (e) {
-            console.log(e)
-            // alert("Gagal ditambahkan");
+            console.log(e.responseJSON.error);
+            // alert("Gagal ditambahkan: " + e.responseJSON.error);
             // Swal.fire({
             //   title: 'Error!',
             //   text: 'Gagal Ditambahkan',
