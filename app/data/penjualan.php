@@ -197,7 +197,7 @@ function ubah_penjualan($conn, $id) {
     SET `tgl_bukti` = ?, `pelanggan_id` = ? 
     WHERE `id_penjualan` = ?");
     $statement->bind_param("sii", $tgl_bukti, $pelanggan, $id);
-    if (!$statement->execute() && !isValidTanggal($tgl_bukti)) {
+    if (!$statement->execute()) {
       throw new Exception("Gagal insert penjualan: " . $statement->error);
     }
 
