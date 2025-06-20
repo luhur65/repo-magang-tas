@@ -7,6 +7,9 @@ $username = 'root';
 $pass = '';
 $dbname = 'penjualan';
 
+/* Tell mysqli to throw an exception if an error occurs */
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
 $conn = mysqli_connect($hostname, $username, $pass, $dbname);
 
 // Query Database

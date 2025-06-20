@@ -163,7 +163,12 @@ if ($formID != 'tambah') {
 
     // Datepicker
     $('#tgl_bukti').datepicker({
-      dateFormat: 'dd-mm-yyyy'
+      dateFormat: 'dd-mm-yyyy',
+      changeMonth: true,
+      changeYear: true,
+      yearRange: "1900:2099",
+      maxDate: new Date(2099, 11, 31), // batas maksimum
+      minDate: new Date(1900, 0, 1)    // batas minimum
     });
 
     // Select2

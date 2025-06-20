@@ -1,3 +1,25 @@
+// function isValidTanggal(tgl) {
+//   // Format: dd-mm-yyyy
+//   const regex = /^(\d{2})-(\d{2})-(\d{4})$/;
+//   const match = tgl.match(regex);
+
+//   if (!match) return false;
+
+//   const day = parseInt(match[1], 10);
+//   const month = parseInt(match[2], 10) - 1; // JS months: 0-11
+//   const year = parseInt(match[3], 10);
+
+//   // Batas aman
+//   if (year < 1900 || year > 2099) return false;
+
+//   const date = new Date(year, month, day);
+//   return (
+//     date.getFullYear() === year &&
+//     date.getMonth() === month &&
+//     date.getDate() === day
+//   );
+// }
+
 function tambahBarang() {
   $('#dialogElem').load('./app/views/penjualan/form-penjualan.php').dialog({
     modal: true,
@@ -38,7 +60,7 @@ function tambahBarang() {
           dataType: 'JSON',
           data: $('#data-form').serialize(),
           success: function (data) {
-            alert("Berhasil");
+            // alert("Berhasil");
             // Swal.fire({
             //   title: 'Berhasil!',
             //   text: 'Berhasil Ditambahkan',
@@ -60,8 +82,9 @@ function tambahBarang() {
 
             
           },
-          error: function () {
-            alert("Gagal ditambahkan");
+          error: function (e) {
+            console.log(e)
+            // alert("Gagal ditambahkan");
             // Swal.fire({
             //   title: 'Error!',
             //   text: 'Gagal Ditambahkan',
@@ -130,7 +153,7 @@ function UbahBarang(id) {
             }).trigger('reloadGrid');
 
             // notif saya
-            alert("Berhasil diubah");
+            // alert("Berhasil diubah");
             // Swal.fire({
             //   title: 'Berhasil!',
             //   text: 'Berhasil Diubah',
@@ -138,7 +161,7 @@ function UbahBarang(id) {
             // });
           },
           error: function () {
-            alert("Gagal diubah");
+            // alert("Gagal diubah");
             // Swal.fire({
             //   title: 'Error!',
             //   text: 'Gagal Diubah',
@@ -200,7 +223,7 @@ function HapusBarang(id) {
             $('#jqGrid').trigger('reloadGrid', [{page: page}]);
 
             // notif saya
-            alert("Berhasil Dihapus");
+            // alert("Berhasil Dihapus");
             // Swal.fire({
             //   title: 'Berhasil!',
             //   text: 'Berhasil Dihapus',
@@ -208,7 +231,7 @@ function HapusBarang(id) {
             // });
           },
           error: function () {
-            alert("Gagal Dihapus");
+            // alert("Gagal Dihapus");
             // Swal.fire({
             //   title: 'Error!',
             //   text: 'Gagal Dihapus',
