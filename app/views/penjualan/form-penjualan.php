@@ -231,17 +231,34 @@ if ($formID != 'tambah') {
       minimumValue: '0',
     }
 
-    function deleteValidation(row) {
+    function deleteValidation(tbarang) {
       // hide invalid message
       $('#no_bukti_invalid').hide();
       $('#tgl_bukti_invalid').hide();
       $('#pelanggan_invalid').hide();
 
-      console.log(row);
+      // const allP = row.querySelectorAll('p');
+      // console.log("Jumlah <p>: ", allP.length);
 
-      row.querySelectorAll('p[class^="error-msg"]').forEach(p => {
-        p.textContent = ""; // kosongkan pesan error
+      // const errorP = row.querySelectorAll('p[class*="error-msg"]');
+      // console.log("Jumlah error p: ", errorP.length);
+
+      // Jika row tidak diberikan, hapus semua error di semua baris
+      // tbarang di sini seharusnya adalah elemen tabel / tbody
+      const rows = tbarang.querySelectorAll('tr');
+      rows.forEach(r => {
+        r.querySelectorAll('p[class*="error-msg"]').forEach(p => {
+          p.textContent = "";
+        });
       });
+
+      // if (row) {
+      //   // Hapus pesan error untuk row tertentu
+      //   row.querySelectorAll('p[class*="error-msg"]').forEach(p => {
+      //     p.textContent = ""; // kosongkan pesan error
+      //     console.log('Ada');
+      //   });
+      // }
     }
 
     function updateTotalRow(row) {
@@ -286,7 +303,7 @@ if ($formID != 'tambah') {
           Array.from(btnHapusData).forEach(btn => {
             btn.addEventListener('click', function() {
               // hide invalid message
-              deleteValidation(row);
+              deleteValidation(tableBarang);
               // Jika berhasil, hapus row dari tabel
               row.remove();
               // Update nomor urut
@@ -323,7 +340,25 @@ if ($formID != 'tambah') {
         Array.from(tableBarang.rows).forEach((row, idx) => {
           const btnHapusData = row.querySelector('.btnHapusBaris');
           btnHapusData.addEventListener('click', function() {
-            deleteValidation(row);
+            // e.preventDefault();
+            // console.log(tableBarang.rows.length);
+
+            deleteValidation(tableBarang); // hapus semua validasi
+            // Reset form
+            document.getElementById('data-form').reset();
+            // Reset nilai input
+            row.querySelectorAll('input[type="text"]').forEach(input => {
+              if (!input.readOnly && !input.disabled) {
+                input.value = '';
+              }
+            });
+            // Reset AutoNumeric
+            row.querySelectorAll('.qty, .harga, .total').forEach(input => {
+              const an = AutoNumeric.getAutoNumericElement(input);
+              if (an) an.set(0);
+            });
+            updateGrandTotal();
+
           }); 
         });
         
@@ -445,13 +480,13 @@ if ($formID != 'tambah') {
           const btnHapusBaris = newRow.querySelector('.btnHapusBaris');
           btnHapusBaris.addEventListener('click', function() {
 
+            // hide invalid message
+            deleteValidation(tableBarang);
             newRow.remove();
 
             Array.from(tableBarang.rows).forEach((row, idx) => {
               const th = row.querySelector('th');
               if (th) th.textContent = idx + 1;
-              // hide invalid message
-              deleteValidation(row);
             });
             updateGrandTotal();
 

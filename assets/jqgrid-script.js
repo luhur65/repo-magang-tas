@@ -20,6 +20,76 @@
 //   );
 // }
 
+function validationWhenSubmit() {
+
+  const noBukti = $("form [name=no_bukti]").val();
+  const tglBukti = $("form [name=tgl_bukti]").val();
+  const pelanggan = $("form [name=pelanggan]").val();
+
+  const namaBarangs = $("form#data-form .namabarang");
+  const qtys = $("form#data-form .qty");
+  const hargas = $("form#data-form .harga");
+  // const totals = $("")
+
+  // validasi form - penjualan
+  if (noBukti == "") {
+    isValid = false;
+    $('#no_bukti_invalid').show();
+    // return false; // ubah kode
+  } else {
+    $('#no_bukti_invalid').hide();
+  }
+
+  if (tglBukti == "" || tglBukti == 0) {
+    isValid = false;
+    $('#tgl_bukti_invalid').show();
+  } else {
+    $('#tgl_bukti_invalid').hide();
+  }
+
+  if (pelanggan <= 0 || pelanggan == null) {
+    isValid = false;
+    $('#pelanggan_invalid').show();
+  } else {
+    $('#pelanggan_invalid').hide();
+  }
+
+  console.log(typeof pelanggan);
+  console.log(typeof tglBukti);
+
+  // validasi form - detail penjualan
+  namaBarangs.each(function(i, input) {
+    const errorP = input.parentElement.querySelector('.error-msg-namabarang');
+    if (input.value.trim() === '') {
+      errorP.textContent = 'Nama barang harus diisi!';
+      isValid = false;
+    } else {
+      errorP.textContent = '';
+    }
+  });
+
+  qtys.each(function(i, input) {
+    const errorP = input.parentElement.querySelector('.error-msg-qty');
+    if (input.value.trim() === '' || isNaN(input.value) || input.value == 0) {
+      errorP.textContent = 'Qty barang kosong!';
+      isValid = false;
+    } else {
+      errorP.textContent = '';
+    }
+  });
+
+  hargas.each(function(i, input) {
+    const errorP = input.parentElement.querySelector('.error-msg-harga');
+    if (input.value.trim() === '' || isNaN(input.value) || input.value == 0) {
+      errorP.textContent = 'Harga barang kosong!';
+      isValid = false;
+    } else {
+      errorP.textContent = '';
+    }
+  });
+
+}
+
 function tambahBarang() {
   $('#dialogElem').load('./app/views/penjualan/form-penjualan.php').dialog({
     modal: true,
@@ -32,78 +102,15 @@ function tambahBarang() {
         let sortname = $('#jqGrid').jqGrid('getGridParam', 'sortname');
         let sortorder = $('#jqGrid').jqGrid('getGridParam', 'sortorder');
         let rowNum = parseInt($('#jqGrid').jqGrid('getGridParam', 'rowNum'));
-
-        const noBukti = $("form [name=no_bukti]").val();
-        const tglBukti = $("form [name=tgl_bukti]").val();
-        const pelanggan = $("form [name=pelanggan]").val();
-
-        const namaBarangs = $("form#data-form .namabarang");
-        const qtys = $("form#data-form .qty");
-        const hargas = $("form#data-form .harga");
-        const totals = $("")
-
-        let isValid = true;
-
-        // validasi form - penjualan
-        if (noBukti == "") {
-          isValid = false;
-          $('#no_bukti_invalid').show();
-          // return false; // ubah kode
-        } else {
-          $('#no_bukti_invalid').hide();
-        }
-
-        if (tglBukti == "") {
-          isValid = false;
-          $('#tgl_bukti_invalid').show();
-        } else {
-          $('#tgl_bukti_invalid').hide();
-        }
-
-        if (pelanggan == 0) {
-          isValid = false;
-          $('#pelanggan_invalid').show();
-        } else {
-          $('#tgl_bukti_invalid').hide();
-        }
-
-        // validasi form - detail penjualan
-        namaBarangs.each(function(i, input) {
-          const errorP = input.parentElement.querySelector('.error-msg-namabarang');
-          if (input.value.trim() === '') {
-            errorP.textContent = 'Nama barang harus diisi!';
-            isValid = false;
-          } else {
-            errorP.textContent = '';
-          }
-        });
-
-        qtys.each(function(i, input) {
-          const errorP = input.parentElement.querySelector('.error-msg-qty');
-          if (input.value.trim() === '' || isNaN(input.value) || input.value == 0) {
-            errorP.textContent = 'Qty barang kosong!';
-            isValid = false;
-          } else {
-            errorP.textContent = '';
-          }
-        });
-
-        hargas.each(function(i, input) {
-          const errorP = input.parentElement.querySelector('.error-msg-harga');
-          if (input.value.trim() === '' || isNaN(input.value) || input.value == 0) {
-            errorP.textContent = 'Harga barang kosong!';
-            isValid = false;
-          } else {
-            errorP.textContent = '';
-          }
-        });
         
-
         // Unformat AutoNumeric sebelum serialize
         $('#data-form .harga, #data-form .qty').each(function () {
           const an = AutoNumeric.getAutoNumericElement(this);
           if (an) this.value = an.getNumber();
         });
+
+        // validation
+        validationWhenSubmit();
 
         if (!isValid) {
           return; // Stop jangan lanjut ke AJAX
@@ -186,6 +193,14 @@ function UbahBarang(id) {
           const an = AutoNumeric.getAutoNumericElement(this);
           if (an) this.value = an.getNumber();
         });
+
+        // validation
+        validationWhenSubmit();
+
+        if (!isValid) {
+          return; // Stop jangan lanjut ke AJAX
+        }
+        
 
         $.ajax({
           url: './app/data/penjualan.php?id=' + id + '&sortname=' + sortname + '&sortorder=' + sortorder + '&rows=' + rowNum + '&action=ubah' ,
@@ -381,7 +396,6 @@ function highlightText(cell, keyword) {
   cell.html(updatedHtml);
 }
 
-
 function higligthPencarian(grid) {
   const postData = grid.getGridParam("postData");
   const filtersJSON = postData.filters;
@@ -433,6 +447,7 @@ function higligthPencarian(grid) {
 
 let selectId = null;
 let page = 1;
+let isValid = true;
 
 // Inisialisasi JQGrid
 $('#jqGrid').jqGrid({
