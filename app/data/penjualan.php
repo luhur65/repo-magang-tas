@@ -1,6 +1,10 @@
 <?php 
 
+require 'vendor/autoload.php';
 require_once '../penjualan_config.php';
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 function jsonPenjualanResponse($conn, $id)
 {
@@ -292,6 +296,19 @@ function hapus_penjualan($conn, $id) {
     
   }
 
+}
+
+function exportExcel()
+{
+  // $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+
+  $spreadsheet = new Spreadsheet();
+  $activeWorksheet = $spreadsheet->getActiveSheet();
+  $activeWorksheet->setCellValue('A1', 'Ini excel baru di akses');
+
+  $writer = new Xlsx($spreadsheet);
+  $writer->save('hello world.xlsx');
+  
 }
 
 
