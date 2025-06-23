@@ -20,7 +20,9 @@
 //   );
 // }
 
-function validationWhenSubmit() {
+function validasiInputData() {
+
+  let isValid = true
 
   const noBukti = $("form [name=no_bukti]").val();
   const tglBukti = $("form [name=tgl_bukti]").val();
@@ -54,9 +56,6 @@ function validationWhenSubmit() {
     $('#pelanggan_invalid').hide();
   }
 
-  console.log(typeof pelanggan);
-  console.log(typeof tglBukti);
-
   // validasi form - detail penjualan
   namaBarangs.each(function(i, input) {
     const errorP = input.parentElement.querySelector('.error-msg-namabarang');
@@ -88,6 +87,8 @@ function validationWhenSubmit() {
     }
   });
 
+  return isValid;
+
 }
 
 function tambahBarang() {
@@ -110,12 +111,7 @@ function tambahBarang() {
         });
 
         // validation
-        validationWhenSubmit();
-
-        if (!isValid) {
-          return; // Stop jangan lanjut ke AJAX
-        }
-
+        if (!validasiInputData()) return;
 
         $.ajax({
           url: './app/data/penjualan.php?sortname=' + sortname + '&sortorder=' + sortorder + '&rows=' + rowNum,
@@ -195,12 +191,7 @@ function UbahBarang(id) {
         });
 
         // validation
-        validationWhenSubmit();
-
-        if (!isValid) {
-          return; // Stop jangan lanjut ke AJAX
-        }
-        
+        if (!validasiInputData()) return;
 
         $.ajax({
           url: './app/data/penjualan.php?id=' + id + '&sortname=' + sortname + '&sortorder=' + sortorder + '&rows=' + rowNum + '&action=ubah' ,
