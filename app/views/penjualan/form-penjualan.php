@@ -252,13 +252,6 @@ if ($formID != 'tambah') {
         });
       });
 
-      // if (row) {
-      //   // Hapus pesan error untuk row tertentu
-      //   row.querySelectorAll('p[class*="error-msg"]').forEach(p => {
-      //     p.textContent = ""; // kosongkan pesan error
-      //     console.log('Ada');
-      //   });
-      // }
     }
 
     function updateTotalRow(row) {
@@ -298,7 +291,7 @@ if ($formID != 'tambah') {
 
       if (isUpdateForm == "ubah" || isUpdateForm == "hapus") {
 
-        if (rowCount > 1) {
+        if (rowCount >= 1) {
 
           Array.from(tableBarang.rows).forEach((row, idx) => {
 
