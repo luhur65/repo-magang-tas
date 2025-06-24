@@ -294,28 +294,40 @@ if ($formID != 'tambah') {
     if (tableBarang !== null) {
 
       const isUpdateForm = tableBarang.parentElement.dataset.table;
-      const rowCount = tableBarang.rows.length;
+      let rowCount = tableBarang.rows.length;
 
       if (isUpdateForm == "ubah" || isUpdateForm == "hapus") {
 
-        Array.from(tableBarang.rows).forEach((row, idx) => {
-          const btnHapusData = row.querySelectorAll('.btnHapusBaris');
-          Array.from(btnHapusData).forEach(btn => {
-            btn.addEventListener('click', function() {
-              // hide invalid message
-              deleteValidation(tableBarang);
-              // Jika berhasil, hapus row dari tabel
-              row.remove();
-              // Update nomor urut
-              Array.from(tableBarang.rows).forEach((r, i) => {
-                const th = r.querySelector('th');
-                if (th) th.textContent = i + 1;
+        if (rowCount > 1) {
+
+          Array.from(tableBarang.rows).forEach((row, idx) => {
+
+            const btnHapusData = row.querySelectorAll('.btnHapusBaris');
+              Array.from(btnHapusData).forEach(btn => {
+                btn.addEventListener('click', function() {
+                  rowCount--;
+                  // hide invalid message
+                  deleteValidation(tableBarang);
+                  
+                  if (rowCount >= 1) {
+                    // Jika berhasil, hapus row dari tabel
+                    row.remove();
+                  }
+
+                  // Update nomor urut
+                  Array.from(tableBarang.rows).forEach((r, i) => {
+                    const th = r.querySelector('th');
+                    if (th) th.textContent = i + 1;
+                  });
+
+                  updateGrandTotal();
+                  
+                });
               });
 
-              updateGrandTotal();
-            });
           });
-        });
+
+        }
 
         // hitung total
         const rows = tableBarang.querySelectorAll('tr');
