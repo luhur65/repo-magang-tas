@@ -1,12 +1,4 @@
-<?php 
 
-require_once '../../config.php';
-
-$queryRecords = "SELECT count(*) as total_records FROM penjualan.tbl_penjualan";
-$data = mysqli_query($conn, $queryRecords);
-$record = mysqli_fetch_assoc($data);
-
-?>
 
 <form action="" method="post" id="export-form">
   <table>
@@ -21,7 +13,7 @@ $record = mysqli_fetch_assoc($data);
       <tr>
         <td style="padding-right: 20px;">Sampai Ke-</td>
         <td>
-          <input type="number" name="end_range" id="end_range" class="ui-widget-content ui-corner-all" value="<?= $record['total_records'] ?>" required>
+          <input type="number" name="end_range" id="end_range" class="ui-widget-content ui-corner-all" value="" required>
           <p class="text-xs" style="color: red;" id="end_invalid"></p>
         </td>
       </tr>
@@ -32,3 +24,8 @@ $record = mysqli_fetch_assoc($data);
 
 
 <p id="alert-export" class="mt-5" style="color: white; font-weight: bold; padding: 5px;"></p>
+
+<script>
+  let totalRecords = $("#jqGrid").jqGrid('getGridParam', 'records');
+  document.getElementById('end_range').value = parseInt(totalRecords);
+</script>

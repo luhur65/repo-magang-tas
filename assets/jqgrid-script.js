@@ -141,6 +141,7 @@ function validateRange() {
         // Gunakan else if agar tidak ada pesan error ganda pada field yang sama
         else if (endNum > totalNum) {
             endInvalidMessage.textContent = "Maksimal hanya sampai " + totalNum + " data.";
+            document.getElementById('end_range').value = totalNum;
             isValid = false;
         }
     }
@@ -503,7 +504,7 @@ function higligthPencarian(grid)
 
 }
 
-function exportBarang(id)
+function exportBarang()
 {
 
   $('#dialogElem').load('./app/views/export/export-excel.php').dialog({
@@ -570,7 +571,6 @@ function exportBarang(id)
             window.URL.revokeObjectURL(downloadUrl);
             document.body.removeChild(a);
 
-            delete postData.export;
             $('#dialogElem').dialog('close');
 
           } else {
@@ -740,8 +740,7 @@ $("#jqGrid").jqGrid('navButtonAdd', '#jqGridPager', {
   caption: 'Export Data',
   buttonicon: 'ui-icon-eye',
   onClickButton: function () {
-    const rowId = $('#jqGrid').jqGrid('getGridParam', 'selrow');
-    exportBarang(rowId);
+    exportBarang();
   },
   position: 'last',
   title: 'Export Data',
