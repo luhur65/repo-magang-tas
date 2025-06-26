@@ -1,10 +1,6 @@
 <?php 
 
-require 'vendor/autoload.php';
-require_once '../penjualan_config.php';
-
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+require_once '../config.php';
 
 function jsonPenjualanResponse($conn, $id)
 {
@@ -75,8 +71,8 @@ function getIDTerdekat($conn, $deletedId)
     // var_dump("empty");
     return !empty($ids) ? $ids[0] : null; // Fallback ke yang pertama
   }
+  
 }
-
 
 function getTotalPenjualan($conn) 
 {
@@ -90,23 +86,11 @@ function getTotalPenjualan($conn)
 function reverseDate($date) 
 {
   return date('Y-m-d', strtotime($date));
+
 }
 
-// function isValidTanggal($tgl) 
-// {
-//   // dd-mm-yyyy
-//   $parts = explode('-', $tgl);
-//   if (count($parts) !== 3) return false;
-
-//   [$d, $m, $y] = $parts;
-//   if (!checkdate((int)$m, (int)$d, (int)$y)) return false;
-
-//   if ((int)$y < 1900 || (int)$y > 2099) return false;
-
-//   return true;
-// }
-
-function tambah_penjualan($conn) {
+function tambah_penjualan($conn) 
+{
 
   // Mysqli Transaction
   $conn->begin_transaction();
@@ -177,10 +161,10 @@ function tambah_penjualan($conn) {
     
   } 
 
-
 }
 
-function ubah_penjualan($conn, $id) {
+function ubah_penjualan($conn, $id) 
+{
 
   $conn->begin_transaction();
 
@@ -255,7 +239,8 @@ function ubah_penjualan($conn, $id) {
 
 }
 
-function hapus_penjualan($conn, $id) {
+function hapus_penjualan($conn, $id) 
+{
 
 
   $conn->begin_transaction();
@@ -269,7 +254,7 @@ function hapus_penjualan($conn, $id) {
 
     $statement = $conn->prepare("DELETE FROM `penjualan`.`tbl_penjualan` WHERE `id_penjualan` = ?");
     $statement->bind_param("i", $id);
-    if (!$statement->execute) {
+    if (!$statement->execute()) {
       throw new Exception("Gagal delete penjualan: " . $statement->error);
     }
 
@@ -278,8 +263,8 @@ function hapus_penjualan($conn, $id) {
     $hapusSemuaDataBarang = $conn->prepare("DELETE FROM `penjualan`.`penjualan_detail` WHERE `penjualan_id` = ?");
     $hapusSemuaDataBarang->bind_param('i', $id);
     $hapusSemuaDataBarang->execute();
-    if (!$statement->execute) {
-      throw new Exception("Gagal delete detail penjualan: " . $statement->error);
+    if (!$hapusSemuaDataBarang->execute()) {
+      throw new Exception("Gagal delete detail penjualan: " . $hapusSemuaDataBarang->error);
     }
 
     $hapusSemuaDataBarang->close();
@@ -298,18 +283,7 @@ function hapus_penjualan($conn, $id) {
 
 }
 
-function exportExcel()
-{
-  // $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
 
-  $spreadsheet = new Spreadsheet();
-  $activeWorksheet = $spreadsheet->getActiveSheet();
-  $activeWorksheet->setCellValue('A1', 'Ini excel baru di akses');
-
-  $writer = new Xlsx($spreadsheet);
-  $writer->save('hello world.xlsx');
-  
-}
 
 
 // cek param 
@@ -341,5 +315,6 @@ if (isset($_GET['id'])) {
 } else {
 
   tambah_penjualan($conn);
+  
 
 }

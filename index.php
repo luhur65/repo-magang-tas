@@ -12,8 +12,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
   <script src="./assets/js/jquery.min.js"></script>
   <script src="./assets/js/jquery-ui.min.js"></script>
   <script src="./assets/js/trirand/i18n/grid.locale-id.js"></script>
@@ -25,9 +23,6 @@
 
   <!-- select2 -->
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-  <!-- Highlight.js -->
-  <script src="https://raw.githubusercontent.com/bartaz/sandbox.js/master/jquery.highlight.js"></script>
 
   <link rel="stylesheet" href="./assets/css/jquery-ui.css">
   <link rel="stylesheet" href="./assets/css/trirand/ui.jqgrid.css">

@@ -91,7 +91,66 @@ function validasiInputData() {
 
 }
 
-function tambahBarang() {
+function validateRange() {
+    // Ambil nilai dari input
+    let startRange = document.getElementById('start_range').value;
+    let endRange = document.getElementById('end_range').value;
+    
+    // Ambil elemen pesan error
+    let startInvalidMessage = document.getElementById('start_invalid');
+    let endInvalidMessage = document.getElementById('end_invalid');
+
+    // Asumsi totalRecords sudah ada
+    let totalRecords = $("#jqGrid").jqGrid('getGridParam', 'records');
+
+    // 1. Reset kondisi dan bersihkan pesan error sebelum validasi baru
+    startInvalidMessage.textContent = "";
+    endInvalidMessage.textContent = "";
+    let isValid = true;
+
+    // 2. Validasi untuk Start Range
+    // Menggunakan else if agar hanya satu pesan yang muncul per field
+    if (startRange === "") {
+        startInvalidMessage.textContent = "Kolom ini wajib diisi.";
+        isValid = false;
+    } else if (parseInt(startRange, 10) <= 0) {
+        startInvalidMessage.textContent = "Harus dimulai dari angka 1 atau lebih.";
+        isValid = false;
+    }
+
+    // 3. Validasi untuk End Range
+    if (endRange === "") {
+        endInvalidMessage.textContent = "Kolom ini wajib diisi.";
+        isValid = false;
+    } else if (parseInt(endRange, 10) <= 0) {
+        endInvalidMessage.textContent = "Harus diisi dengan angka positif.";
+        isValid = false;
+    }
+
+    // 4. Lakukan validasi perbandingan HANYA JIKA kedua input sudah dianggap valid sejauh ini.
+    // Ini mencegah error parseInt(NaN) dan pesan error yang tidak relevan.
+    if (isValid) {
+        const startNum = parseInt(startRange, 10);
+        const endNum = parseInt(endRange, 10);
+        const totalNum = parseInt(totalRecords, 10);
+
+        if (startNum > endNum) {
+            startInvalidMessage.textContent = "Nilai awal tidak boleh lebih besar dari akhir.";
+            isValid = false;
+        } 
+        // Gunakan else if agar tidak ada pesan error ganda pada field yang sama
+        else if (endNum > totalNum) {
+            endInvalidMessage.textContent = "Maksimal hanya sampai " + totalNum + " data.";
+            isValid = false;
+        }
+    }
+
+    // Kembalikan status validasi akhir
+    return isValid;
+}
+
+function tambahBarang() 
+{
   $('#dialogElem').load('./app/views/penjualan/form-penjualan.php').dialog({
     modal: true,
     height: 500,
@@ -155,10 +214,11 @@ function tambahBarang() {
       }
     }
   });
+
 }
 
-
-function UbahBarang(id) {
+function UbahBarang(id) 
+{
 
   if (id == null) {
     alert("Pilih data yang mau diedit");
@@ -239,7 +299,8 @@ function UbahBarang(id) {
 
 }
 
-function HapusBarang(id) {
+function HapusBarang(id) 
+{
 
   if (id == null) {
     alert("Pilih data yang mana mau di hapus");
@@ -309,7 +370,8 @@ function HapusBarang(id) {
 
 }
 
-function detailTable(id) {
+function detailTable(id) 
+{
 
   const formatOpt = {
     prefix: '',
@@ -377,17 +439,22 @@ function detailTable(id) {
       $("#detailItem").jqGrid('footerData', 'set', { nama_barang: 'Total:', total: totalHarga, qty: totalBarang });
     }
   }).navGrid('#detailItemPager', { add: false, edit: false, del: false, search: false, refresh: false });
+
 }
 
-function highlightText(cell, keyword) {
+function highlightText(cell, keyword) 
+{
+
   if (!keyword) return;
   const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const regex = new RegExp(`(${escapedKeyword})`, "gi");
   const updatedHtml = cell.html().replace(regex, '<span class="highlight">$1</span>');
   cell.html(updatedHtml);
+
 }
 
-function higligthPencarian(grid) {
+function higligthPencarian(grid) 
+{
   const postData = grid.getGridParam("postData");
   const filtersJSON = postData.filters;
   const globalSearch = postData.global_search;
@@ -433,6 +500,112 @@ function higligthPencarian(grid) {
       highlightText($(this), globalSearch);
     });
   }
+
+}
+
+function exportBarang(id)
+{
+
+  $('#dialogElem').load('./app/views/export/export-excel.php').dialog({
+    modal: true,
+    height: 300,
+    width: 500,
+    position: { my: "center center", at: "center", of: window },
+    title: 'Export Data ke Excel',
+    buttons: {
+      'Export Data': function () {
+        // let sortname = $('#jqGrid').jqGrid('getGridParam', 'sortname');
+        // let sortorder = $('#jqGrid').jqGrid('getGridParam', 'sortorder');
+        // let rowNum = parseInt($('#jqGrid').jqGrid('getGridParam', 'rowNum'));
+        let postData = $("#jqGrid").jqGrid('getGridParam', 'postData');
+
+        // // parameter export=excel
+        // postData.export = 'excel';
+
+        // url semua parameter
+        let params = new URLSearchParams(postData).toString();
+        let url = './app/data/export.php?' + params;
+
+        // const notifMessage = document.getElementById('alert-export');
+        // notifMessage.style.background = "white";
+        // notifMessage.textContent = "";
+
+        if (!validateRange()) return;
+
+        let form = document.getElementById('export-form');
+        let formDataString = new URLSearchParams(new FormData(form)).toString();
+
+        // MENGGANTI $.ajax DENGAN XMLHttpRequest MURNI
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', url, true);
+
+        // Ini adalah pengganti xhrFields: { responseType: 'blob' }
+        xhr.responseType = 'blob';
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
+        // Fungsi ini akan dipanggil setelah respons diterima dari server
+        xhr.onload = function () {
+          // Periksa apakah request sukses (status 200-299)
+          if (xhr.status >= 200 && xhr.status < 300) {
+            // JIKA SUKSES, PROSES BLOB MENJADI DOWNLOAD
+            const blob = xhr.response; // Ambil blob dari respons
+
+            let filename = "Laporan_Penjualan.xlsx";
+            const disposition = xhr.getResponseHeader('Content-Disposition');
+            if (disposition && disposition.indexOf('attachment') !== -1) {
+              const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+              const matches = filenameRegex.exec(disposition);
+              if (matches != null && matches[1]) {
+                filename = matches[1].replace(/['"]/g, '');
+              }
+            }
+
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = downloadUrl;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(downloadUrl);
+            document.body.removeChild(a);
+
+            delete postData.export;
+            $('#dialogElem').dialog('close');
+
+          } else {
+            // JIKA GAGAL (status 4xx atau 5xx), PROSES PESAN ERROR JSON
+            const reader = new FileReader();
+            reader.onload = function() {
+              try {
+                const errorData = JSON.parse(reader.result);
+                alert("Gagal melakukan export: " + errorData.error);
+                console.error("Server-side export error:", errorData.error);
+              } catch (e) {
+                alert("Terjadi kesalahan. Gagal membaca pesan error dari server. Status: " + xhr.status);
+                console.error("Failed to parse error response:", reader.result);
+              }
+            };
+            reader.readAsText(xhr.response); // xhr.response adalah blob yang berisi JSON
+          }
+        };
+
+        // Fungsi ini untuk menangani error level jaringan (misal: tidak ada koneksi)
+        xhr.onerror = function () {
+          alert("Terjadi error jaringan. Tidak dapat menghubungi server.");
+        };
+
+        // Kirim request dengan data dari form
+        xhr.send(formDataString);
+
+
+      },
+      'Cancel': function () {
+        $('#dialogElem').dialog('close');
+      }
+    }
+  });
+
 }
 
 
@@ -540,7 +713,6 @@ $("#jqGrid").jqGrid('navButtonAdd', '#jqGridPager', {
   buttonicon: 'ui-icon-pencil',
   onClickButton: function () {
     const rowId = $('#jqGrid').jqGrid('getGridParam', 'selrow');
-    // console.log(rowId);
     UbahBarang(rowId);
   },
   position: 'last',
@@ -555,12 +727,25 @@ $("#jqGrid").jqGrid('navButtonAdd', '#jqGridPager', {
   buttonicon: 'ui-icon-trash',
   onClickButton: function () {
     const rowId = $('#jqGrid').jqGrid('getGridParam', 'selrow');
-    // console.log(rowId);
     HapusBarang(rowId);
   },
   position: 'last',
   title: 'Hapus',
   id: "HapusHeader",
+  cursor: "pointer",
+});
+
+// tombol export data ke excel
+$("#jqGrid").jqGrid('navButtonAdd', '#jqGridPager', {
+  caption: 'Export Data',
+  buttonicon: 'ui-icon-eye',
+  onClickButton: function () {
+    const rowId = $('#jqGrid').jqGrid('getGridParam', 'selrow');
+    exportBarang(rowId);
+  },
+  position: 'last',
+  title: 'Export Data',
+  id: "ExportHeader",
   cursor: "pointer",
 });
 
@@ -654,19 +839,3 @@ $('#gsearch').on('keyup', function () {
   }).trigger('reloadGrid')
 
 });
-
-// tombol detail
-// $("#jqGrid").jqGrid('navButtonAdd', '#jqGridPager', {
-//   caption: 'Lihat Data',
-//   buttonicon: 'ui-icon-eye',
-//   onClickButton: function () {
-//     const rowId = $('#jqGrid').jqGrid('getGridParam', 'selrow');
-//     // console.log(rowId);
-//     // HapusBarang(rowId);
-//     LihatBarang(rowId);
-//   },
-//   position: 'last',
-//   title: 'Lihat',
-//   id: "LihatHeader",
-//   cursor: "pointer",
-// });
